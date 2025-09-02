@@ -1,0 +1,400 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Contract Analysis System</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .file-upload {
+            border: 2px dashed var(--secondary);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .file-upload p {
+            margin: 0;
+            color: var(--secondary);
+        }
+        
+        .btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary);
+        }
+        
+        .btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .clause-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .clause-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .clause-id {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .category-badge {
+            background-color: var(--light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .clause-preview {
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        
+        .summary {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid var(--success);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: var(--accent);
+            background-color: #fadbd8;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .success {
+            color: var(--success);
+            background-color: #d5f4e6;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Automated Legal Contract Analysis</h1>
+            <p class="subtitle">AI-powered clause classification and summarization</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section class="upload-section">
+            <h2>Upload Legal Document</h2>
+            <p>Supported formats: PDF, DOCX, TXT</p>
+            
+            <div class="file-upload" id="dropZone">
+                <p>Drag & drop your contract here or click to browse</p>
+                <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display: none;">
+            </div>
+            
+            <button id="analyzeBtn" class="btn" disabled>Analyze Contract</button>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Analyzing contract clauses...</p>
+            </div>
+            
+            <div class="error" id="errorMessage"></div>
+            <div class="success" id="successMessage"></div>
+        </section>
+        
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Analysis Results</h2>
+                <span id="clauseCount"></span>
+            </div>
+            
+            <div id="clausesContainer">
+                <!-- Results will be populated here -->
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Legal Contract Analysis System - Powered by Transformer AI</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const resultsSection = document.getElementById('resultsSection');
+            const clausesContainer = document.getElementById('clausesContainer');
+            const clauseCount = document.getElementById('clauseCount');
+            
+            let selectedFile = null;
+            
+            // Drag and drop functionality
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#3498db';
+                dropZone.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.style.borderColor = '#3498db';
+                dropZone.style.backgroundColor = 'transparent';
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files.length) {
+                    handleFileSelection(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFileSelection(fileInput.files[0]);
+                }
+            });
+            
+            analyzeBtn.addEventListener('click', analyzeDocument);
+            
+            function handleFileSelection(file) {
+                const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+                
+                if (!validTypes.includes(file.type)) {
+                    showError('Please upload a PDF, DOCX, or TXT file.');
+                    return;
+                }
+                
+                selectedFile = file;
+                dropZone.innerHTML = `<p><strong>${file.name}</strong> selected</p>`;
+                analyzeBtn.disabled = false;
+                hideError();
+                hideSuccess();
+            }
+            
+            function analyzeDocument() {
+                if (!selectedFile) return;
+                
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                
+                showLoading();
+                hideError();
+                hideSuccess();
+                
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    displayResults(data.results);
+                    showSuccess(`Analysis completed. ${data.results.length} clauses processed.`);
+                })
+                .catch(error => {
+                    hideLoading();
+                    showError('An error occurred during analysis: ' + error.message);
+                });
+            }
+            
+            function displayResults(clauses) {
+                clausesContainer.innerHTML = '';
+                clauseCount.textContent = `${clauses.length} clauses found`;
+                
+                clauses.forEach(clause => {
+                    const clauseElement = document.createElement('div');
+                    clauseElement.className = 'clause-card';
+                    
+                    clauseElement.innerHTML = `
+                        <div class="clause-header">
+                            <span class="clause-id">Clause #${clause.clause_id}</span>
+                            <span class="category-badge">${clause.category}</span>
+                        </div>
+                        <div class="clause-preview">${clause.text}</div>
+                        <div class="summary">
+                            <strong>Summary:</strong> ${clause.summary}
+                        </div>
+                    `;
+                    
+                    clausesContainer.appendChild(clauseElement);
+                });
+                
+                resultsSection.style.display = 'block';
+            }
+            
+            function showLoading() {
+                loadingIndicator.style.display = 'block';
+                analyzeBtn.disabled = true;
+            }
+            
+            function hideLoading() {
+                loadingIndicator.style.display = 'none';
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+            
+            function hideError() {
+                errorMessage.style.display = 'none';
+            }
+            
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+            }
+            
+            function hideSuccess() {
+                successMessage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
